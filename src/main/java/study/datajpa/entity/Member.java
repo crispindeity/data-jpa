@@ -33,7 +33,7 @@ public class Member {
     @ToString.Exclude
     private Team team;
 
-    public Member(String username) {
+    private Member(String username) {
         this.username = username;
     }
 
@@ -47,6 +47,10 @@ public class Member {
 
     public static Member of(String username, int age, Team team) {
         return new Member(username, age, team);
+    }
+
+    public static Member from(String username) {
+        return new Member(username);
     }
 
     public void changeTeam(Team team) {

@@ -9,43 +9,39 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 @Repository
 @Transactional(readOnly = true)
-public class MemberJpaRepository {
+public class TeamJpaRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Transactional
-    public Member save(Member member) {
-        entityManager.persist(member);
-        return member;
+    public Team save(Team team) {
+        entityManager.persist(team);
+        return team;
     }
 
     @Transactional
-    public void delete(Member member) {
-        entityManager.remove(member);
+    public void delete(Team team) {
+        entityManager.remove(team);
     }
 
-    public List<Member> findAll() {
+    public List<Team> findAll() {
         return entityManager.createQuery(
-                "select m from Member m", Member.class
+                "select t from Team t", Team.class
         ).getResultList();
     }
 
-    public Optional<Member> findById(Long id) {
-        return Optional.ofNullable(entityManager.find(Member.class, id));
+    public Optional<Team> findById(long id) {
+        return Optional.ofNullable(entityManager.find(Team.class, id));
     }
 
     public long count() {
         return entityManager.createQuery(
-                "select count(m) from Member m", Long.class
+                "select count(t) from Team t", Long.class
         ).getSingleResult();
-    }
-
-    public Member find(Long id) {
-        return entityManager.find(Member.class, id);
     }
 }
