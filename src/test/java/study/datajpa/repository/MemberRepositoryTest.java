@@ -7,9 +7,16 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
@@ -19,8 +26,12 @@ import study.datajpa.entity.dto.MemberDto;
 @Transactional
 class MemberRepositoryTest {
 
-    @Autowired MemberRepository memberRepository;
-    @Autowired TeamRepository teamRepository;
+    @Autowired
+    MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Test
     void testMember() {
@@ -149,5 +160,70 @@ class MemberRepositoryTest {
 
         Member findMember = memberRepository.findMemberByUsername("AAA");
         System.out.println("findMember = " + findMember);
+    }
+
+    @Test
+    void paging() {
+        memberRepository.save(Member.of("member1", 10, null));
+        memberRepository.save(Member.of("member2", 10, null));
+        memberRepository.save(Member.of("member3", 10, null));
+        memberRepository.save(Member.of("member4", 10, null));
+        memberRepository.save(Member.of("member5", 10, null));
+        memberRepository.save(Member.of("member6", 10, null));
+
+        int age = 10;
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Page<Member> page = memberRepository.findPageByAge(age, pageRequest);
+
+        List<Member> content = page.getContent();
+        long totalElements = page.getTotalElements();
+
+        assertThat(content).hasSize(3);
+        assertThat(page.getTotalElements()).isEqualTo(6);
+        assertThat(page.getNumber()).isZero();
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.isFirst()).isTrue();
+        assertThat(page.hasNext()).isTrue();
+    }
+
+    @Test
+    void slicing() {
+        memberRepository.save(Member.of("member1", 10, null));
+        memberRepository.save(Member.of("member2", 10, null));
+        memberRepository.save(Member.of("member3", 10, null));
+        memberRepository.save(Member.of("member4", 10, null));
+        memberRepository.save(Member.of("member5", 10, null));
+        memberRepository.save(Member.of("member6", 10, null));
+
+        int age = 10;
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Slice<Member> slice = memberRepository.findSliceByAge(age, pageRequest);
+
+        List<Member> content = slice.getContent();
+
+        assertThat(content).hasSize(3);
+        assertThat(slice.getNumber()).isZero();
+        assertThat(slice.isFirst()).isTrue();
+        assertThat(slice.hasNext()).isTrue();
+    }
+
+    @Test
+    void bulkUpdateTest() {
+        memberRepository.save(Member.of("member1", 10, null));
+        memberRepository.save(Member.of("member2", 19, null));
+        memberRepository.save(Member.of("member3", 20, null));
+        memberRepository.save(Member.of("member4", 21, null));
+        memberRepository.save(Member.of("member5", 40, null));
+        memberRepository.save(Member.of("member6", 41, null));
+
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        List<Member> user = memberRepository.findByUsername("username5");
+        Member member = user.get(0);
+        System.out.println("member.getUsername() = " + member.getUsername());
+
+        assertThat(resultCount).isEqualTo(4);
     }
 }

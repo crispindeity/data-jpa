@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import study.datajpa.entity.Member;
 
 @SpringBootTest
@@ -18,6 +21,8 @@ class MemberJpaRepositoryTest {
 
     @Autowired
     MemberJpaRepository memberJpaRepository;
+    @PersistenceContext
+    EntityManager entityManager;
 
     @Test
     void memberTest() {
@@ -102,5 +107,21 @@ class MemberJpaRepositoryTest {
 
         assertThat(members).hasSize(3);
         assertThat(totalCount).isEqualTo(5);
+    }
+
+    @Test
+    void bulkUpdateTest() {
+        memberJpaRepository.save(Member.of("member1", 10, null));
+        memberJpaRepository.save(Member.of("member2", 19, null));
+        memberJpaRepository.save(Member.of("member3", 20, null));
+        memberJpaRepository.save(Member.of("member4", 21, null));
+        memberJpaRepository.save(Member.of("member5", 40, null));
+        memberJpaRepository.save(Member.of("member6", 41, null));
+
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+        entityManager.clear();
+
+        assertThat(resultCount).isEqualTo(4);
     }
 }
