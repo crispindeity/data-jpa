@@ -123,4 +123,19 @@ class MemberRepositoryTest {
             System.out.println("dto = " + dto);
         }
     }
+
+    @Test
+    void findByNames() {
+        Member aaa = Member.from("AAA");
+        Member bbb = Member.from("BBB");
+
+        memberRepository.save(aaa);
+        memberRepository.save(bbb);
+
+        List<Member> users = memberRepository.findByNames(List.of("AAA", "BBB"));
+
+        for (Member user : users) {
+            System.out.println("user = " + user);
+        }
+    }
 }
