@@ -12,12 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
+import study.datajpa.entity.dto.MemberDto;
 
 @SpringBootTest
 @Transactional
 class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
+    @Autowired TeamRepository teamRepository;
 
     @Test
     void testMember() {
@@ -79,5 +82,45 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findByUsername("AAA");
 
         assertThat(result.get(0).getUsername()).isEqualTo(member1.getUsername());
+    }
+
+    @Test
+    void testQuery() {
+        Member member1 = Member.of("AAA", 10, null);
+
+        memberRepository.save(member1);
+
+        List<Member> result = memberRepository.findUser("AAA", 10);
+
+        assertThat(result.get(0)).isEqualTo(member1);
+    }
+
+    @Test
+    void findUsernameList() {
+        Member aaa = Member.from("AAA");
+        Member bbb = Member.from("BBB");
+
+        memberRepository.save(aaa);
+        memberRepository.save(bbb);
+
+        List<String> usernameList = memberRepository.findUsernameList();
+
+        for (String s : usernameList) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    void findMemberDto() {
+        Team teamA = new Team("TeamA");
+        teamRepository.save(teamA);
+
+        Member memberA = Member.of("AAA", 10, teamA);
+        memberRepository.save(memberA);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto) {
+            System.out.println("dto = " + dto);
+        }
     }
 }
