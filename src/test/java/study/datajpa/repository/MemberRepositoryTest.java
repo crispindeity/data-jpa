@@ -138,4 +138,16 @@ class MemberRepositoryTest {
             System.out.println("user = " + user);
         }
     }
+
+    @Test
+    void returnTypeTest() {
+        Member aaa = Member.from("AAA");
+        Member bbb = Member.from("BBB");
+
+        memberRepository.save(aaa);
+        memberRepository.save(bbb);
+
+        Member findMember = memberRepository.findMemberByUsername("AAA");
+        System.out.println("findMember = " + findMember);
+    }
 }
