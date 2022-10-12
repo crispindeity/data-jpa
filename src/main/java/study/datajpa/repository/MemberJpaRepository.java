@@ -79,6 +79,7 @@ public class MemberJpaRepository {
                 .getSingleResult();
     }
 
+    @Transactional
     public int bulkAgePlus(int age) {
         return entityManager.createQuery(
                         "update Member m set m.age = m.age + 1 where m.age >= : age"
