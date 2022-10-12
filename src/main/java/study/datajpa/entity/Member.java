@@ -20,7 +20,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@ToString(callSuper = true)
 @NamedQuery(
         name = "Member.findByUsername",
         query = "select m from Member m where m.username = :username"
@@ -28,7 +28,7 @@ import lombok.ToString;
 @NamedEntityGraph(
         name = "Member.all", attributeNodes = @NamedAttributeNode("team")
 )
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
