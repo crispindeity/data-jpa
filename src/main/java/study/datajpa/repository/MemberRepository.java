@@ -20,8 +20,9 @@ import javax.persistence.QueryHint;
 
 import study.datajpa.entity.Member;
 import study.datajpa.entity.dto.MemberDto;
+import study.datajpa.repository.custom.MemberRepositoryCustom;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
 

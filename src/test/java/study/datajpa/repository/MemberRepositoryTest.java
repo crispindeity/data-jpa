@@ -21,6 +21,7 @@ import javax.persistence.PersistenceContext;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 import study.datajpa.entity.dto.MemberDto;
+import study.datajpa.repository.query.MemberQueryRepository;
 
 @SpringBootTest
 @Transactional
@@ -30,6 +31,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @Autowired
+    MemberQueryRepository memberQueryRepository;
     @PersistenceContext
     EntityManager entityManager;
 
@@ -271,5 +274,15 @@ class MemberRepositoryTest {
         entityManager.clear();
 
         List<Member> member11 = memberRepository.findLockByUsername("member1");
+    }
+
+    @Test
+    void callCustom() {
+        List<Member> result = memberRepository.findMemberCustom();
+    }
+
+    @Test
+    void queryClass() {
+        List<Member> result = memberQueryRepository.findAllMembers();
     }
 }
