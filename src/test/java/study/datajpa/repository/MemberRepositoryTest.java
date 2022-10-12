@@ -18,13 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 import study.datajpa.entity.dto.MemberDto;
+import study.datajpa.repository.only.NestedClosedProjections;
+import study.datajpa.repository.only.UsernameOnly;
+import study.datajpa.repository.only.UsernameOnlyDto;
 import study.datajpa.repository.query.MemberQueryRepository;
 import study.datajpa.repository.spec.MemberSpec;
 
@@ -335,5 +337,72 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findAll(example);
 
         assertThat(result.get(0).getUsername()).isEqualTo("m1");
+    }
+
+    @Test
+    void projections() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        List<UsernameOnly> usernames = memberRepository.findProjectionsByUsername("m1");
+
+        for (UsernameOnly username : usernames) {
+            System.out.println("username = " + username.getUsername());
+        }
+
+        assertThat(usernames.get(0).getUsername()).isEqualTo(m1.getUsername());
+    }
+
+    @Test
+    void classProjections() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        List<UsernameOnlyDto> usernames = memberRepository.findClassProjectionsByUsername("m1", UsernameOnlyDto.class);
+
+        for (UsernameOnlyDto username : usernames) {
+            System.out.println("username = " + username);
+        }
+
+        assertThat(usernames.get(0).getUsername()).isEqualTo(m1.getUsername());
+    }
+
+    @Test
+    void nestedProjections() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        List<NestedClosedProjections> usernames = memberRepository.findClassProjectionsByUsername("m1", NestedClosedProjections.class);
+
+        for (NestedClosedProjections username : usernames) {
+            System.out.println("username = " + username.getUsername());
+            System.out.println("username = " + username.getTeam().getName());
+        }
+
+        assertThat(usernames.get(0).getUsername()).isEqualTo(m1.getUsername());
     }
 }

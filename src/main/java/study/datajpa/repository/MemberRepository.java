@@ -22,6 +22,8 @@ import javax.persistence.QueryHint;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.dto.MemberDto;
 import study.datajpa.repository.custom.MemberRepositoryCustom;
+import study.datajpa.repository.only.UsernameOnly;
+import study.datajpa.repository.only.UsernameOnlyDto;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom, JpaSpecificationExecutor<Member> {
 
@@ -79,4 +81,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @Query("select m from Member m left join fetch m.team")
     List<Member> findPageMember(Pageable pageable);
+
+    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+
+    <T> List<T> findClassProjectionsByUsername(@Param("username") String username, Class<T> type);
 }
