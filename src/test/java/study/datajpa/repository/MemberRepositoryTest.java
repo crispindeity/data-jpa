@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 import study.datajpa.entity.dto.MemberDto;
 import study.datajpa.repository.query.MemberQueryRepository;
+import study.datajpa.repository.spec.MemberSpec;
 
 @SpringBootTest
 @Transactional
@@ -284,5 +286,24 @@ class MemberRepositoryTest {
     @Test
     void queryClass() {
         List<Member> result = memberQueryRepository.findAllMembers();
+    }
+
+    @Test
+    void specBasic() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Specification<Member> spec = MemberSpec.username("m1").and(MemberSpec.teamName("teamA"));
+        List<Member> result = memberRepository.findAll(spec);
+
+        assertThat(result).hasSize(1);
     }
 }
