@@ -24,6 +24,7 @@ import javax.persistence.PersistenceContext;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
 import study.datajpa.entity.dto.MemberDto;
+import study.datajpa.repository.only.MemberProjection;
 import study.datajpa.repository.only.NestedClosedProjections;
 import study.datajpa.repository.only.UsernameOnly;
 import study.datajpa.repository.only.UsernameOnlyDto;
@@ -404,5 +405,45 @@ class MemberRepositoryTest {
         }
 
         assertThat(usernames.get(0).getUsername()).isEqualTo(m1.getUsername());
+    }
+
+    @Test
+    void nativeQuery() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Member member = memberRepository.findByNativeQuery("m1");
+
+        System.out.println("member = " + member);
+    }
+
+    @Test
+    void nativeQueryAndProjection() {
+        Team teamA = new Team("teamA");
+        entityManager.persist(teamA);
+
+        Member m1 = Member.of("m1", 0, teamA);
+        Member m2 = Member.of("m2", 0, teamA);
+        entityManager.persist(m1);
+        entityManager.persist(m2);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        Page<MemberProjection> result = memberRepository.findByNativeProjection(PageRequest.of(0, 10));
+        List<MemberProjection> content = result.getContent();
+
+        for (MemberProjection memberProjection : content) {
+            System.out.println("memberProjection.getUsername() = " + memberProjection.getUsername());
+            System.out.println("memberProjection.getTeamName() = " + memberProjection.getTeamName());
+        }
     }
 }
